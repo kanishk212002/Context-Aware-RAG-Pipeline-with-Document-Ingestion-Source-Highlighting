@@ -1,0 +1,42 @@
+{
+  "document_info": {
+    "filename": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution.pdf",
+    "document_name": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution",
+    "total_chunks": 2,
+    "processed_date": "2025-11-16T22:39:29.183373",
+    "chunking_method": "agentic_gemini",
+    "token_range": "300-800"
+  },
+  "chunks": [
+    {
+      "chunk_id": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution_chunk_001",
+      "chunk_number": 1,
+      "content": "# AI Developer Assignment: Build a RAG Pipeline With Source Attribution\n\n**Project Title: Context-Aware RAG Pipeline with Document Ingestion + Source Highlighting**\n\n---\n\n**Objective**\n\nBuild a Retrieval-Augmented Generation (RAG) pipeline that can:\n\n1. Ingest any documents (PDF, TXT, DOCX, CSV).\n2. Chunk, embed, and store them in a vector database.\n3. Accept a user query and retrieve the most relevant context.\n4. Generate an accurate answer strictly based on the retrieved context.\n5. Show which document + which chunk was used in the final answer.\n\n---\n\n**Requirements**\n\n1. **Document Ingestion Module**\n\n   Candidate must build a module that:\n\n   - Accepts multiple file formats\n     - .pdf, .txt, .docx, .csv\n   - Extracts text cleanly\n   - Cleans & preprocesses text (remove boilerplate)\n   - Splits text into chunks of 300–800 tokens\n   - Generates embeddings using:\n     - OpenAI Embeddings (preferred)\n     - OR any embedding model (sentence-transformers)\n\n---\n\n2. **Vector Store (Choose Any One)**\n\n   - FAISS (local)\n   - ChromaDB\n   - Pinecone\n   - Weaviate\n   - Qdrant\n\n   Each stored chunk must include:\n\n   - chunk_text\n\n```latex\n\\begin{itemize}\n    \\item \\texttt{source\\_filename}\n    \\item \\texttt{page\\_number} (if available)\n    \\item \\texttt{chunk\\_id}\n    \\item \\texttt{embedding\\_vector}\n\\end{itemize}\n\n\\section{3. Retrieval Module}\nGiven a query:\n\\begin{itemize}\n    \\item Convert to embedding\n    \\item Perform vector similarity search\n    \\item Return top relevant chunks\n    \\item Show metadata (file name + chunk numbers)\n\\end{itemize}\n\n\\section{4. LLM Answer Generation}\nUse any LLM (OpenAI GPT, Llama, Mistral, etc.).\n\nThe answer must:\n\\begin{itemize}\n    \\item Be grounded only on retrieved chunks\n    \\item Contain citations like:\n    \\begin{itemize}\n        \\item \\texttt{[Source: file.pdf | chunk 12]}\n        \\item OR\n        \\item \\texttt{According to Document: product\\_manual.pdf (Chunk \\#4)}",
+      "token_count": 510,
+      "source_info": {
+        "filename": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution.pdf",
+        "document_name": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution"
+      },
+      "gemini_analysis": {
+        "topic": "Project Overview and Core RAG Pipeline Requirements",
+        "chunk_reasoning": "Chunk 1 based on semantic analysis"
+      },
+      "created_at": "2025-11-16T22:39:29.184041"
+    },
+    {
+      "chunk_id": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution_chunk_002",
+      "chunk_number": 2,
+      "content": "\\end{itemize}\n\\end{itemize}\n\n\\section{5. Final Output Format (Mandatory)}\nWhen user asks a question like:\n\n\\texttt{``What are the safety precautions for machine X?''}\n\nYour system must return:\n```\n\n```latex\nA. Final Answer\nA clean, concise explanation.\n\nB. ``Sources Used'' Section\nShow which file + chunk(s) used:\n\nSources Used:\n1. machine_manual.pdf — Chunk 7\n2. installation_guide.pdf — Chunk 3\n\nC. ``Retrieved Context'' Section\nRaw text of the chunks used.\n\n\\Sample Input\n\nUser question:\n\nWhat does the document say about inventory management?\n\nYour system returns:\n\nFinal Answer:\n...LLM answer...\n\nSources:\n\\begin{itemize}\n    \\item warehouse_policy.pdf (chunk 5)\n    \\item supply_chain_notes.docx (chunk 2)\n\\end{itemize}\n\nContext Extracts:\n\\begin{itemize}\n    \\item ``...text from chunk 5...''\n    \\item ``...text from chunk 2...''\n\\end{itemize}\n```\n\n# Tech Stack Suggested\n\n- Python\n- FastAPI (optional, for API interface)\n- Vector DB of choice (FAISS/Chroma)\n- OpenAI API or Local LLM\n- Document parsers:\n  - pypdf\n  - docx2txt\n  - pandas\n  - langchain (optional)\n\n---\n\n## Required\n\n- Build a simple CRUD UI to upload docume nts\n- Add caching for repeated queries\n- Add reranking\n- Add LLM-based answer verification\n- Highlight exact sentence used from context\n\n---\n\n## Expected Deliverables\n\n1. GitHub repo containing:\n   - Code\n   - Requirements.txt\n   - README with instructions\n2. Example documents + sample queries\n3. Demo video (2–5 mins) explaining:\n   - Architecture\n   - Pipeline flow\n   - Example questions + citations\n\n---\n\n## README Must Include\n\n- How to run the project\n- How to upload documents\n- How to ask questions\n- Example inputs/outputs\n\n\\documentclass{article}\n\n\\begin{document}\n\n\\begin{itemize}\n    \\item Technologies used\n\\end{itemize}\n\n\\end{document}",
+      "token_count": 473,
+      "source_info": {
+        "filename": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution.pdf",
+        "document_name": "AI Developer Assignment_ Build a RAG Pipeline With Source Attribution"
+      },
+      "gemini_analysis": {
+        "topic": "Mandatory Output Format and Sample Interaction",
+        "chunk_reasoning": "Chunk 2 based on semantic analysis"
+      },
+      "created_at": "2025-11-16T22:39:29.184549"
+    }
+  ]
+}
