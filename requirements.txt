@@ -11,4 +11,13 @@ langchain-google-genai==0.0.6
 tiktoken==0.5.2
 openai==1.3.7
 chromadb==0.4.18
-numpy==1.24.3
+langchain-community==0.0.10
+langchain-core==0.1.10
+langchain-chroma==0.1.0
+langchain-huggingface==0.0.1
+sentence-transformers==2.2.2
+transformers==4.35.2
+
+
+torch==2.1.0
+numpy==1.26.2
