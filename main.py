@@ -2,6 +2,9 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel , Field 
 from typing import Dict, Any
 import os
+import pandas as pd
+import os
+
 import uvicorn
 from document_processor import process_pdf_with_mistral, process_docx_with_mistral
 from chunker import AgenticChunker
@@ -53,6 +56,8 @@ async def upload_document_path(doc_path: DocumentPath):
     """
     Accept a local file path for document processing
     """
+    import pandas as pd
+
     # Normalize the path to handle different OS formats
     normalized_path = os.path.normpath(doc_path.file_path)
     
@@ -68,9 +73,7 @@ async def upload_document_path(doc_path: DocumentPath):
     file_size = os.path.getsize(normalized_path)
     file_extension = os.path.splitext(normalized_path)[1].lower()
     filename = os.path.basename(normalized_path)
-    
 
-    
     response = {
         "message": "File path received successfully",
         "original_path": doc_path.file_path,
@@ -79,43 +82,100 @@ async def upload_document_path(doc_path: DocumentPath):
         "file_size": file_size,
         "file_extension": file_extension
     }
-    
-    # Process PDF or DOCX files with Mistral
+
+    # ============================
+    # CASE 1: PDF / DOC / DOCX
+    # ============================
     if file_extension in ['.pdf', '.docx', '.doc', '.docs']:
         try:
             if file_extension == '.pdf':
                 print(f"Processing PDF: {filename}")
                 processing_result = await process_pdf_with_mistral(normalized_path, filename)
                 response["mistral_processing"] = processing_result
-                
-                # Perform agentic chunking
-                print(f"Starting agentic chunking with Gemini...")
+
+                print(f"Starting agentic chunking...")
                 chunking_result = await chunker.process_document_pages(
-                    processing_result["data_folder"], 
+                    processing_result["data_folder"],
                     filename
                 )
                 response["chunking_result"] = chunking_result
-                response["message"] = f"PDF processed and chunked successfully"
-            
+                response["message"] = "PDF processed and chunked successfully"
+
             elif file_extension in ['.docx', '.doc', '.docs']:
                 print(f"Processing {file_extension.upper()}: {filename}")
                 processing_result = await process_docx_with_mistral(normalized_path, filename)
                 response["mistral_processing"] = processing_result
-                
-                # Perform agentic chunking
-                print(f"Starting agentic chunking with Gemini...")
+
+                print(f"Starting agentic chunking...")
                 chunking_result = await chunker.process_document_pages(
-                    processing_result["data_folder"], 
+                    processing_result["data_folder"],
                     filename
                 )
                 response["chunking_result"] = chunking_result
                 response["message"] = f"{file_extension.upper()} processed and chunked successfully"
-        
+
         except Exception as e:
             response["error"] = str(e)
             response["message"] = f"Error processing {file_extension} file"
-    
-    return response
+
+        return response
+
+    # ============================
+    # CASE 2: CSV (DIRECT CHUNKING)
+    # ============================
+    if file_extension == ".csv":
+        try:
+            print(f"Processing CSV: {filename}")
+
+            # 1. Read CSV
+            import pandas as pd
+            df = pd.read_csv(normalized_path)
+
+            # 2. Create data folder (same structure used for PDF/DOC)
+            base_name = os.path.splitext(filename)[0]
+            data_folder = os.path.join("data", base_name)
+            os.makedirs(data_folder, exist_ok=True)
+
+            # 3. Convert CSV into readable markdown
+            csv_markdown = df.to_markdown(index=False)
+
+            page_path = os.path.join(data_folder, "page1.md")
+            with open(page_path, "w", encoding="utf-8") as f:
+                f.write(f"# CSV Content: {filename}\n\n")
+                f.write(csv_markdown)
+
+            # Fake processing result to match PDF/DOC format
+            processing_result = {
+                "data_folder": data_folder,
+                "total_pages": 1,
+                "processed_pages": [
+                    {
+                        "page_number": 1,
+                        "file_path": page_path,
+                        "status": "completed"
+                    }
+                ]
+            }
+            response["csv_processing"] = processing_result
+
+            print("Starting agentic chunking on CSV...")
+            chunking_result = await chunker.process_document_pages(
+                data_folder,
+                filename
+            )
+            response["chunking_result"] = chunking_result
+            response["message"] = "CSV processed and chunked successfully"
+
+        except Exception as e:
+            response["error"] = str(e)
+            response["message"] = "Error processing CSV file"
+
+        return response
+
+    # If extension is not supported
+    raise HTTPException(status_code=400, detail="Unsupported file type.")
+
+
 
 @app.post("/create-embeddings")
 async def create_embeddings(embedding_request: EmbeddingRequest):
