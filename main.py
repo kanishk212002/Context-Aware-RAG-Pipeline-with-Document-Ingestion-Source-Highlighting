@@ -3,11 +3,16 @@ from pydantic import BaseModel
 import os
 import uvicorn
 from document_processor import process_pdf_with_mistral, process_docx_with_mistral
+from chunker import AgenticChunker
 
 app = FastAPI(title="Document Path API")
 
 class DocumentPath(BaseModel):
     file_path: str
+
+
+# Initialize the agentic chunker
+chunker = AgenticChunker(min_tokens=300, max_tokens=800)
 
 @app.post("/upload-path")
 async def upload_document_path(doc_path: DocumentPath):
@@ -40,19 +45,35 @@ async def upload_document_path(doc_path: DocumentPath):
     }
     
     # Process PDF or DOCX files with Mistral
-    if file_extension in ['.pdf', '.docx']:
+    if file_extension in ['.pdf', '.docx', '.doc', '.docs']:
         try:
             if file_extension == '.pdf':
                 print(f"Processing PDF: {filename}")
                 processing_result = await process_pdf_with_mistral(normalized_path, filename)
                 response["mistral_processing"] = processing_result
-                response["message"] = f"PDF processed successfully with Mistral OCR"
+                
+                # Perform agentic chunking
+                print(f"Starting agentic chunking with Gemini...")
+                chunking_result = await chunker.process_document_pages(
+                    processing_result["data_folder"], 
+                    filename
+                )
+                response["chunking_result"] = chunking_result
+                response["message"] = f"PDF processed and chunked successfully"
             
-            elif file_extension == '.docx':
-                print(f"Processing DOCX: {filename}")
+            elif file_extension in ['.docx', '.doc', '.docs']:
+                print(f"Processing {file_extension.upper()}: {filename}")
                 processing_result = await process_docx_with_mistral(normalized_path, filename)
                 response["mistral_processing"] = processing_result
-                response["message"] = f"DOCX processed successfully"
+                
+                # Perform agentic chunking
+                print(f"Starting agentic chunking with Gemini...")
+                chunking_result = await chunker.process_document_pages(
+                    processing_result["data_folder"], 
+                    filename
+                )
+                response["chunking_result"] = chunking_result
+                response["message"] = f"{file_extension.upper()} processed and chunked successfully"
         
         except Exception as e:
             response["error"] = str(e)
